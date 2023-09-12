@@ -1,5 +1,6 @@
 const socket = io ();
 
+
 const formProduct = document.getElementById ( "productForm" );
 formProduct.addEventListener ( "submit", ( e ) => {
     e.preventDefault ();

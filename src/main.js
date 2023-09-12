@@ -1,3 +1,4 @@
+import "dotenv/config"
 import express, { json } from 'express';
 import { engine } from 'express-handlebars';
 import { Server } from 'socket.io';
@@ -17,11 +18,9 @@ const server = app.listen ( PORT, () => {
     console.log ( `Server port: ${ PORT }` );
 });
 
-mongoose.connect ( "mongodb+srv://leinadatserga:gonzagus1207@daniel.sjvei41.mongodb.net/?retryWrites=true&w=majority")
+mongoose.connect ( process.env.MONGO_URL )
 .then ( async () => {
     console.log ( "DB connected" )
-    const cartProdRef = await cartModel.findOne ({_id: "64f92651fda397a4faea8ccd"}).populate("products.id_prod")
-    console.log(JSON.stringify(cartProdRef));
 })
 .catch (( error ) => console.log ( "Failed to connect to MongoDB Atlas: ", error ))
 const io = new Server ( server );
@@ -35,9 +34,10 @@ app.use ( "/api/carts", routerCart);
 app.use ( "/api/products", routerProd);
 app.use ( "/api/messages", routerMessages);
 const mailMessages = [];
-const products = JSON.stringify ( await prodModel.find ());
-let prods = JSON.parse ( products );
-io.on ( "connection", ( socket ) => {
+let prods;
+io.on ( "connection", async ( socket ) => {
+    const products = JSON.stringify ( await prodModel.find ());
+    prods = JSON.parse ( products );
     console.log( "Socket.io connection" );
     socket.on ( "newProduct", ( productData ) => {
         prodModel.create ( productData );
@@ -51,7 +51,9 @@ io.on ( "connection", ( socket ) => {
     })
 })
 
-app.get ( "/static/realtimeproducts", ( req, res ) => {
+app.get ( "/static/realtimeproducts", async ( req, res ) => {
+    const products = JSON.stringify ( await prodModel.find ());
+    prods = JSON.parse ( products );
     res.render ( "realTimeProducts", {
         title: "RealTimeProducts",
         nombre: "Ingreso de nuevo Producto",
@@ -60,7 +62,9 @@ app.get ( "/static/realtimeproducts", ( req, res ) => {
         pathJs: "realTimeProducts"
     })
 })
-app.get ( "/static", ( req, res ) => {
+app.get ( "/static", async ( req, res ) => {
+    const products = JSON.stringify ( await prodModel.find ());
+    prods = JSON.parse ( products );
     res.render ( "home", {
         title: "Home",
         nombre: "Lista de Productos",

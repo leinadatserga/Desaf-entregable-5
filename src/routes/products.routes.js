@@ -4,10 +4,19 @@ import prodModel from '../models/products.models.js';
 
 const routerProd = Router ();
 routerProd.get ( "/", async ( req, res ) => {
-    const { limit } = req.query
+    const { limit, page, query, sort } = req.query
+    let queryParsed
+    query ? queryParsed = JSON.parse(query) : queryParsed = {};
+    let lim = limit;
+    if ( limit <= 0 || limit == undefined ) lim = 10;
     try {
-        const products = await prodModel.find ().limit ( limit );
-        res.status ( 200 ).send ({ result: "Ok", prods: products })
+        const productsSort = await prodModel.paginate ( queryParsed , { limit: lim, page: page, sort: {"price": sort } });
+        const products = await prodModel.paginate ( queryParsed , { limit: lim, page: page });
+        if ( sort ) {
+            res.status ( 200 ).send ({ result: "Ok", prods: productsSort });  
+        } else {
+            res.status ( 200 ).send ({ result: "Ok", prods: products });
+        }
     } catch ( error ) {
         res.status ( 400 ).send ({ error: `Error when consulting products: ${ error }`})
     }
