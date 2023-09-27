@@ -8,7 +8,7 @@ routerMessages.get ( "/", async ( req, res ) => {
         const messages = await messageModel.find ();
         res.status ( 200 ).send ({ result: "Ok", messages: messages });
     } catch ( error ) {
-        res.status ( 400 ).send ({ error: `Error checking messages: ${ error }`});
+        res.status ( 500 ).send ({ error: `Error checking messages: ${ error }`});
     }
 });
 routerMessages.get ( "/:email", async ( req, res ) => {
@@ -22,7 +22,7 @@ routerMessages.get ( "/:email", async ( req, res ) => {
             res.status ( 404 ).send ({ result: "Not found" });
         }
     } catch ( error ) {
-        res.status ( 400 ).send ({ error: `Error getting messages: ${ error }`});
+        res.status ( 500 ).send ({ error: `Error getting messages: ${ error }`});
     }
 });
 routerMessages.post ( "/", async ( req, res ) => {
@@ -31,7 +31,7 @@ routerMessages.post ( "/", async ( req, res ) => {
         const newMessage = await messageModel.create ({ email, message });
         res.status ( 200 ).send ({ result: "Ok", message: newMessage });
     } catch ( error ) {
-        res.status ( 400 ).send ({ error: `Error creating message: ${ error }` });
+        res.status ( 500 ).send ({ error: `Error creating message: ${ error }` });
     }
 });
 routerMessages.delete ( "/:email", async ( req, res ) => {
@@ -40,7 +40,7 @@ routerMessages.delete ( "/:email", async ( req, res ) => {
         const deletedMessages = await messageModel.findOneAndDelete ( email );
         deletedProduct ? res.status ( 200 ).send ({ result: "Ok", message: deletedMessages }) : res.status ( 404 ).send ({ result: "Not found" });
     } catch ( error ) {
-        res.status ( 400 ).send ({ error: `Error deleting message: ${ error }` });
+        res.status ( 500 ).send ({ error: `Error deleting message: ${ error }` });
     }
 });
 export default routerMessages;

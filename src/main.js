@@ -17,6 +17,8 @@ import userModel from "./models/users.model.js";
 import cartModel from './models/carts.models.js';
 import session from "express-session";
 import MongoStore from "connect-mongo";
+import initializePassport from "./config/passport.js";
+import passport from "passport";
 
 const PORT = 8080;
 const app = express ();
@@ -44,6 +46,9 @@ app.use ( session ({
     saveUninitialized: true
 })
 );
+initializePassport ();
+app.use ( passport.initialize ());
+app.use ( passport.session ());
 app.engine ( "handlebars", engine ());
 app.set ( "view engine", "handlebars" );
 app.set ( "views", path.resolve ( __dirname, "./views" ));
@@ -54,7 +59,7 @@ app.use ( "/api/messages", routerMessages );
 app.use ( "/api/session", routerSession );
 app.use ( "/api/users", routerUsers );
 
-app.get ( "/setCookie", ( req, res ) => {
+app.get ( "/setcookie", ( req, res ) => {
     res.cookie ( "CookieTest", "Here the value of a cookie", { maxAge: 60000, signed: true } ).send ( "Cookie created" );
 });
 app.get ( "/getcookies", ( req, res ) => {
@@ -80,6 +85,7 @@ function authorized ( req, res, next ) {
 };
 app.get ( "/login", ( req,res ) => {
     const { email, password } = req.body;
+    if ( email == "admin@mail.com" ) return res.send ( "Please login in admin session. Here" );
     if ( email != "" && password != "" ) {
         req.session.email = email;
         console.log(email);
