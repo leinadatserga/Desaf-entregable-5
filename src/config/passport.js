@@ -2,11 +2,28 @@
 import passport from "passport";
 import local from "passport-local";
 import GithubStrategy from "passport-github2";
+import jwt from "passport-jwt";
 import { createHash, validatePassword } from "../utils/bcrypt.js";
 import userModel from "../models/users.model.js";
 
 const LocalStrategy = local.Strategy;
+const JWTStrategy = jwt.Strategy;
+const JWTExtractor = jwt.ExtractJwt;
 const initializePassport = () => {
+    const cookieExtractor = req => {
+        const token = req.cookies ? req.cookies.jwtCookie : {};
+        return token;
+    }
+    passport.use ( "jwt", new JWTStrategy ({
+        jwtFromRequest: JWTExtractor.fromExtractors ([ cookieExtractor ]),
+        secretOrKey: process.env.JWT_SECRET
+    }, async ( jwt_payload, done ) => {
+        try {
+            return done ( null, jwt_payload );
+        } catch (error) {
+            return done ( error );
+        }
+    }));
     passport.use ( "register", new LocalStrategy ( 
         { passReqToCallback: true, usernameField: "email" }, async ( req, username, password, done ) => {
             const { first_name, last_name, email, age } = req.body;
@@ -76,7 +93,7 @@ passport.use ( "github", new GithubStrategy ({
 }))
 
 passport.serializeUser (( user, done ) => {
-    done ( null, user._id )
+    done ( null, user.user._id )
 });
 
 passport.deserializeUser ( async ( id, done ) => {
