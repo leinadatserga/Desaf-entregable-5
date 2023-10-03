@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import prodModel from '../models/products.models.js';
+import { passportError, authorization } from '../utils/errors.js';
 
 
 const routerProd = Router ();
@@ -30,7 +31,7 @@ routerProd.get ( "/:id", async ( req, res ) => {
         res.status ( 500 ).send ({ error: `Error getting product: ${ error }`});
     }
 });
-routerProd.post ( "/", async ( req, res ) => {
+routerProd.post ( "/", passportError ( "jwt" ), authorization ( "admin" ), async ( req, res ) => {
     const { title, description, code, price, status, stock, category, thumbnails } = req.body;
     try {
         const newProduct = await prodModel.create ({ title, description, code, price, status, stock, category, thumbnails });

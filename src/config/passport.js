@@ -93,7 +93,7 @@ passport.use ( "github", new GithubStrategy ({
 }))
 
 passport.serializeUser (( user, done ) => {
-    done ( null, user.user._id )
+    done ( null, user._id )
 });
 
 passport.deserializeUser ( async ( id, done ) => {

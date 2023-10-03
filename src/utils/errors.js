@@ -19,7 +19,7 @@ export const authorization = ( rol ) => {
         if ( !req.user ) {
             return res.status ( 401 ).send ({ error: "Unauthorized user"});
         }
-        if ( req.user.user [ 0 ].rol != rol ) {
+        if ( req.user.user.rol != rol ) {
             return res.status ( 403 ).send ({ error: "Access denied. User don't have the necessary privileges"});
         }
         next ();

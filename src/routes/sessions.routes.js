@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import passport from 'passport';
-
+import { passportError, authorization } from '../utils/errors.js';
+import { generateToken } from '../utils/jwt.js';
 
 const routerSession = Router ();
 
@@ -15,6 +16,10 @@ routerSession.post ( "/login", passport.authenticate ( "login" ), async ( req, r
             email: req.user.email,
             age: req.user.age
         }
+        const token = generateToken ( req.user );
+        res.cookie ( "jwtCookie", token, {
+            maxAge: 43200000
+        })
         res.status ( 200 ).send ({ message: "User created: ", payload: req.user });
     } catch ( error ) {
         res.status ( 500 ).send ({ message: `Error to initiate session ${ error }`})
@@ -32,6 +37,9 @@ routerSession.get ( "/testjwt", passport.authenticate ( "jwt", { session: false 
     }
 })
 
+routerSession.get ( "/current", passportError ( "jwt" ), authorization ( "user" ), async ( req, res) => {
+    res.send ( req.user )
+});
 routerSession.get ( "/github", passport.authenticate ( "github", { scope: [ "user: email" ]}), async ( req, res ) => {
     res.status ( 200 ).send ({ message: "User created: ", payload: req.user });
 });
